@@ -8,10 +8,16 @@ def format_slack_message(text: str) -> str:
     Returns:
         Formatted text suitable for Slack display
     """
-    # Convert markdown headers (### Header) to Slack bold format
-    text = re.sub(r'^###\s+(.*?)$', r'*\1*', text, flags=re.MULTILINE)
+    # Convert markdown links [text](url) to Slack format <url|text>
+    # This pattern handles links with special characters in both text and URL
+    text = re.sub(
+        r'\[([^\]]+)\]\(([^)]+)\)', 
+        lambda m: f'<{m.group(2).strip()}|{m.group(1).strip()}>',
+        text
+    )
     
-    # Convert markdown bold (**text**) to Slack bold (*text*)
+    # Rest of your formatting rules
+    text = re.sub(r'^###\s+(.*?)$', r'*\1*', text, flags=re.MULTILINE)
     text = re.sub(r'\*\*(.*?)\*\*', r'*\1*', text)
     
     # Format primary level numbered lists (1.)
